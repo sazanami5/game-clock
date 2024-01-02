@@ -1,3 +1,15 @@
+# 対局時計
+
+# Bun
+## Bun install
+```shell
+curl -fsSL https://bun.sh/install | bash # for macOS, Linux, and WSL
+# to install a specific version
+curl -fsSL https://bun.sh/install | bash -s "bun-v1.0.0"
+```
+[https://bun.sh/docs/installation](https://bun.sh/docs/installation)
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
