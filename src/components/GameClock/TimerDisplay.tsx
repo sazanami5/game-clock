@@ -88,8 +88,8 @@ export function TimerDisplay({
     const timeStatus = player.isTimeUp
       ? "、時間切れ"
       : statusText
-        ? `、${statusText}`
-        : "";
+      ? `、${statusText}`
+      : "";
     return `${playerLabel}、残り時間${time}、手数${player.moveCount}${activeStatus}${timeStatus}`;
   };
 

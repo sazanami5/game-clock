@@ -131,7 +131,11 @@ export function ControlPanel({
 // アイコンコンポーネント（SVG）
 // すべてaria-hidden="true"を親から受け取り、装飾的要素として扱う
 
-function SettingsIcon({ "aria-hidden": ariaHidden }: { "aria-hidden"?: boolean | "true" | "false" }) {
+function SettingsIcon({
+  "aria-hidden": ariaHidden,
+}: {
+  "aria-hidden"?: boolean | "true" | "false";
+}) {
   return (
     <svg
       className="w-4 h-4"
@@ -148,7 +152,11 @@ function SettingsIcon({ "aria-hidden": ariaHidden }: { "aria-hidden"?: boolean |
   );
 }
 
-function PlayIcon({ "aria-hidden": ariaHidden }: { "aria-hidden"?: boolean | "true" | "false" }) {
+function PlayIcon({
+  "aria-hidden": ariaHidden,
+}: {
+  "aria-hidden"?: boolean | "true" | "false";
+}) {
   return (
     <svg
       className="w-4 h-4"
@@ -162,7 +170,11 @@ function PlayIcon({ "aria-hidden": ariaHidden }: { "aria-hidden"?: boolean | "tr
   );
 }
 
-function PauseIcon({ "aria-hidden": ariaHidden }: { "aria-hidden"?: boolean | "true" | "false" }) {
+function PauseIcon({
+  "aria-hidden": ariaHidden,
+}: {
+  "aria-hidden"?: boolean | "true" | "false";
+}) {
   return (
     <svg
       className="w-4 h-4"
@@ -176,7 +188,11 @@ function PauseIcon({ "aria-hidden": ariaHidden }: { "aria-hidden"?: boolean | "t
   );
 }
 
-function SwapIcon({ "aria-hidden": ariaHidden }: { "aria-hidden"?: boolean | "true" | "false" }) {
+function SwapIcon({
+  "aria-hidden": ariaHidden,
+}: {
+  "aria-hidden"?: boolean | "true" | "false";
+}) {
   return (
     <svg
       className="w-4 h-4"
@@ -192,7 +208,11 @@ function SwapIcon({ "aria-hidden": ariaHidden }: { "aria-hidden"?: boolean | "tr
   );
 }
 
-function ResetIcon({ "aria-hidden": ariaHidden }: { "aria-hidden"?: boolean | "true" | "false" }) {
+function ResetIcon({
+  "aria-hidden": ariaHidden,
+}: {
+  "aria-hidden"?: boolean | "true" | "false";
+}) {
   return (
     <svg
       className="w-4 h-4"

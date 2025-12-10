@@ -385,7 +385,10 @@ export function Settings({
       >
         {/* ヘッダー */}
         <header className="flex items-center justify-between p-4 border-b border-color-border">
-          <h2 id="settings-title" className="text-lg font-semibold text-color-text">
+          <h2
+            id="settings-title"
+            className="text-lg font-semibold text-color-text"
+          >
             設定
           </h2>
           <button
