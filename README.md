@@ -1,42 +1,80 @@
-# 対局時計
+# 対局時計 - Game Clock
 
-# Bun
-## Bun install
-```shell
-curl -fsSL https://bun.sh/install | bash # for macOS, Linux, and WSL
-# to install a specific version
-curl -fsSL https://bun.sh/install | bash -s "bun-v1.0.0"
+将棋・チェス・囲碁対応の多機能対局時計Webアプリケーション。スマートフォンやタブレットで実際の対局に使用できます。
+
+## 機能
+
+### 7つのゲームモード
+
+| モード | 名称 | 説明 |
+|--------|------|------|
+| 基本 | 切れ負け/秒読み | 持ち時間終了後、一手ごとの秒読み |
+| 1 | 秒読み複数回 | 秒読みを複数回使用可能 |
+| 2 | 考慮時間（NHK杯ルール） | 秒読み＋考慮時間 |
+| 3 | フィッシャー | 着手ごとに時間加算 |
+| 4 | カナダ式 | 規定手数ごとに時間追加 |
+| 5 | チェス国際 | 規定手数後、秒読み＋加算 |
+| 6 | シャンチー国際 | 規定手数後、秒読み |
+
+### プリセット設定
+
+よく使う設定からすぐに選択できます：
+
+- **将棋ウォーズ** 3分切れ負け / 10分切れ負け
+- **将棋** 10分+30秒
+- **NHK杯ルール** 持ち時間10分、秒読み30秒、考慮時間60秒×10回
+- **ABEMAトーナメント** 持ち時間5分、フィッシャー5秒加算
+- **チェス** バレット / ブリッツ / ラピッド / クラシカル
+- **囲碁** 30分+30秒 / 秒読み5回
+- **カナダ式** など
+
+### その他の機能
+
+- **音声秒読み** - 日本語 / 英語 / ブザー音
+- **手数カウント** - 対局の手数を表示
+- **ハンデ設定** - 対局者ごとに異なる持ち時間を設定
+- **千日手対応** - 残時間入れ替え機能
+- **設定保存** - 前回の設定を記憶
+
+## 使い方
+
+1. 画面をタップして対局開始
+2. 手を指したら自分の側の画面をタップ
+3. 相手のタイマーが動き始める
+
+対面対局では、スマートフォン/タブレットを盤の横に置き、相手側のプレイヤーは180度回転した表示を見ることができます。
+
+## 開発
+
+```bash
+# 依存関係のインストール
+bun install
+
+# 開発サーバー起動
+bun run dev
+
+# ビルド
+bun run build
 ```
-[https://bun.sh/docs/installation](https://bun.sh/docs/installation)
 
+## デプロイ
 
-# React + TypeScript + Vite
+GitHub Pagesへの自動デプロイが設定されています。
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+1. GitHubでリポジトリのSettings → Pagesを開く
+2. Source を "GitHub Actions" に設定
+3. mainブランチにプッシュすると自動的にデプロイされます
 
-Currently, two official plugins are available:
+デプロイURL: `https://[username].github.io/game-clock/`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 技術スタック
 
-## Expanding the ESLint configuration
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS v4
+- Web Speech Synthesis API
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## ライセンス
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+MIT
