@@ -38,10 +38,11 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
 
   /**
    * 時間切れ時のコールバック
+   * プレイヤー名を含めた音声を再生
    */
   const handleTimeUp = useCallback(
-    (_player: 1 | 2) => {
-      playTimeUp();
+    (player: 1 | 2) => {
+      playTimeUp(player);
     },
     [playTimeUp]
   );

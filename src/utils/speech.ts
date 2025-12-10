@@ -121,7 +121,11 @@ export function speakStart(voiceType: VoiceType, volume: VolumeLevel): void {
 }
 
 // 終了時の音声
-export function speakTimeUp(voiceType: VoiceType, volume: VolumeLevel): void {
+export function speakTimeUp(
+  player: 1 | 2,
+  voiceType: VoiceType,
+  volume: VolumeLevel
+): void {
   if (volume === 0 || voiceType === 'none') return;
 
   if (voiceType === 'buzzer') {
@@ -135,9 +139,14 @@ export function speakTimeUp(voiceType: VoiceType, volume: VolumeLevel): void {
 
   window.speechSynthesis.cancel();
 
+  // プレイヤー名を取得
+  const playerName = voiceType === 'japanese'
+    ? (player === 1 ? '先手' : '後手')
+    : (player === 1 ? 'Player one' : 'Player two');
+
   const text = voiceType === 'japanese' 
-    ? '時間切れです'
-    : 'Time is up';
+    ? `${playerName}、時間切れです`
+    : `${playerName}, time is up`;
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';

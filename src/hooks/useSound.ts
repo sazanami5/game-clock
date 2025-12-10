@@ -11,7 +11,7 @@ import {
 interface UseSoundReturn {
   playByoyomi: (seconds: number) => void;
   playStart: () => void;
-  playTimeUp: () => void;
+  playTimeUp: (player: 1 | 2) => void;
   playConsideration: (remaining: number) => void;
   initSound: () => void;
 }
@@ -30,9 +30,9 @@ export function useSound(settings: SoundSettings): UseSoundReturn {
     speakStart(voiceType, volume);
   }, []);
 
-  const playTimeUp = useCallback(() => {
+  const playTimeUp = useCallback((player: 1 | 2) => {
     const { voiceType, volume } = settingsRef.current;
-    speakTimeUp(voiceType, volume);
+    speakTimeUp(player, voiceType, volume);
   }, []);
 
   const playConsideration = useCallback((remaining: number) => {
