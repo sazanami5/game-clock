@@ -5,7 +5,12 @@ let audioContext: AudioContext | null = null;
 
 // 現在再生中の連続ブザー音（手番切り替え時に停止するため）
 let currentOscillator: OscillatorNode | null = null;
-let currentGainNode: GainNode | null = null;
+
+// 音声リストのキャッシュ
+let cachedVoices: SpeechSynthesisVoice[] = [];
+
+// 音声合成が初期化済みかどうか
+let speechInitialized = false;
 
 // AudioContextを取得（遅延初期化）
 function getAudioContext(): AudioContext {
@@ -13,6 +18,65 @@ function getAudioContext(): AudioContext {
     audioContext = new AudioContext();
   }
   return audioContext;
+}
+
+// 音声リストを更新
+function updateVoices(): void {
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    cachedVoices = voices;
+  }
+}
+
+// 音声を取得（キャッシュを使用）
+function getVoice(lang: string): SpeechSynthesisVoice | null {
+  // キャッシュが空なら再取得
+  if (cachedVoices.length === 0) {
+    updateVoices();
+  }
+  return cachedVoices.find(v => v.lang.startsWith(lang)) || null;
+}
+
+// 音声合成を実行（共通処理）
+function speak(text: string, lang: string, rate: number, volume: VolumeLevel): void {
+  if (!('speechSynthesis' in window)) {
+    return;
+  }
+
+  // 初期化されていない場合は初期化
+  if (!speechInitialized) {
+    initSpeechSynthesis();
+  }
+
+  const synth = window.speechSynthesis;
+
+  // 中断状態を解除
+  if (synth.paused) {
+    synth.resume();
+  }
+
+  // 発話中または保留中の場合はキャンセル
+  if (synth.speaking || synth.pending) {
+    synth.cancel();
+  }
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang;
+  utterance.rate = rate;
+  utterance.volume = volume / 3;
+
+  // 適切な音声を選択
+  const targetLang = lang.startsWith('ja') ? 'ja' : 'en';
+  const voice = getVoice(targetLang);
+  if (voice) {
+    utterance.voice = voice;
+  }
+
+  // Chrome bug workaround: cancel直後にspeakすると失敗することがある
+  // requestAnimationFrameで次のフレームまで待つ
+  requestAnimationFrame(() => {
+    synth.speak(utterance);
+  });
 }
 
 // 連続ブザー音を停止
@@ -24,7 +88,6 @@ export function stopBuzzer(): void {
       // 既に停止している場合は無視
     }
     currentOscillator = null;
-    currentGainNode = null;
   }
 }
 
@@ -58,12 +121,10 @@ export function playBuzzer(volume: VolumeLevel, frequency: number = 880, duratio
     // 連続音の場合は参照を保持（手番切り替え時に停止できるように）
     if (persistent) {
       currentOscillator = oscillator;
-      currentGainNode = gainNode;
       // 自然終了時にクリア
       oscillator.onended = () => {
         if (currentOscillator === oscillator) {
           currentOscillator = null;
-          currentGainNode = null;
         }
       };
     }
@@ -94,47 +155,39 @@ export function speakByoyomi(
     return;
   }
 
-  // Web Speech Synthesis API
-  if (!('speechSynthesis' in window)) {
-    console.warn('Speech synthesis not supported');
-    return;
-  }
-
-  // 既存の発話をキャンセル
-  window.speechSynthesis.cancel();
-
   const text = voiceType === 'japanese' 
     ? getJapaneseByoyomiText(seconds)
     : getEnglishByoyomiText(seconds);
 
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';
-  utterance.rate = 1.2; // 少し早めに
-  utterance.volume = volume / 3;
-
-  // 適切な音声を選択
-  const voices = window.speechSynthesis.getVoices();
-  const targetLang = voiceType === 'japanese' ? 'ja' : 'en';
-  const voice = voices.find(v => v.lang.startsWith(targetLang));
-  if (voice) {
-    utterance.voice = voice;
-  }
-
-  window.speechSynthesis.speak(utterance);
+  const lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';
+  speak(text, lang, 1.2, volume);
 }
 
 // 日本語の秒読みテキストを生成
+// 10秒前から「1、2、3、4、5、6、7、8、9、時間切れです」とカウントアップ
 function getJapaneseByoyomiText(seconds: number): string {
-  if (seconds <= 0) return '時間です';
-  if (seconds <= 10) return `${seconds}`;
-  if (seconds === 20) return '20';
-  if (seconds === 30) return '30';
+  if (seconds <= 1) return '時間切れです';
+  // 残り10秒→1、残り9秒→2、... 残り2秒→9
+  if (seconds <= 10) {
+    const count = 11 - seconds;
+    return `${count}`;
+  }
+  if (seconds === 20) return '20秒';
+  if (seconds === 30) return '30秒';
   return `${seconds}秒`;
 }
 
 // 英語の秒読みテキストを生成
+// 10秒前から「1、2、3、4、5、6、7、8、9、time's up」とカウントアップ
 function getEnglishByoyomiText(seconds: number): string {
-  if (seconds <= 0) return 'Time';
+  if (seconds <= 1) return "time's up";
+  // 残り10秒→1、残り9秒→2、... 残り2秒→9
+  if (seconds <= 10) {
+    const count = 11 - seconds;
+    return `${count}`;
+  }
+  if (seconds === 20) return '20 seconds';
+  if (seconds === 30) return '30 seconds';
   return `${seconds}`;
 }
 
@@ -147,20 +200,12 @@ export function speakStart(voiceType: VoiceType, volume: VolumeLevel): void {
     return;
   }
 
-  if (!('speechSynthesis' in window)) return;
-
-  window.speechSynthesis.cancel();
-
   const text = voiceType === 'japanese' 
     ? 'よろしくお願いします'
     : "Let's start the game";
 
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';
-  utterance.rate = 1.0;
-  utterance.volume = volume / 3;
-
-  window.speechSynthesis.speak(utterance);
+  const lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';
+  speak(text, lang, 1.0, volume);
 }
 
 // 終了時の音声
@@ -178,10 +223,6 @@ export function speakTimeUp(
     return;
   }
 
-  if (!('speechSynthesis' in window)) return;
-
-  window.speechSynthesis.cancel();
-
   // プレイヤー名を取得
   const playerName = voiceType === 'japanese'
     ? (player === 1 ? '先手' : '後手')
@@ -191,12 +232,8 @@ export function speakTimeUp(
     ? `${playerName}、時間切れです`
     : `${playerName}, time is up`;
 
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';
-  utterance.rate = 1.0;
-  utterance.volume = volume / 3;
-
-  window.speechSynthesis.speak(utterance);
+  const lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';
+  speak(text, lang, 1.0, volume);
 }
 
 // 考慮時間使用時の音声
@@ -212,27 +249,31 @@ export function speakConsideration(
     return;
   }
 
-  if (!('speechSynthesis' in window)) return;
-
-  window.speechSynthesis.cancel();
-
   const text = voiceType === 'japanese' 
     ? `考慮時間、残り${remaining}回`
     : `Consideration time, ${remaining} remaining`;
 
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';
-  utterance.rate = 1.2;
-  utterance.volume = volume / 3;
-
-  window.speechSynthesis.speak(utterance);
+  const lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';
+  speak(text, lang, 1.2, volume);
 }
 
 // 音声合成の初期化（ユーザー操作後に呼ぶ）
 export function initSpeechSynthesis(): void {
+  if (speechInitialized) return;
+
   if ('speechSynthesis' in window) {
-    // 音声リストを読み込む
-    window.speechSynthesis.getVoices();
+    // 音声リストを読み込んでキャッシュ
+    updateVoices();
+    
+    // 音声リストが非同期で読み込まれる場合に備える
+    window.speechSynthesis.onvoiceschanged = () => {
+      updateVoices();
+    };
+
+    // 中断状態をクリア
+    window.speechSynthesis.cancel();
+
+    speechInitialized = true;
   }
   // AudioContextを初期化
   getAudioContext();
