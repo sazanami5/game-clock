@@ -3,6 +3,10 @@ import { VoiceType, VolumeLevel } from '../types';
 // AudioContextのキャッシュ
 let audioContext: AudioContext | null = null;
 
+// 現在再生中の連続ブザー音（手番切り替え時に停止するため）
+let currentOscillator: OscillatorNode | null = null;
+let currentGainNode: GainNode | null = null;
+
 // AudioContextを取得（遅延初期化）
 function getAudioContext(): AudioContext {
   if (!audioContext) {
@@ -11,9 +15,27 @@ function getAudioContext(): AudioContext {
   return audioContext;
 }
 
+// 連続ブザー音を停止
+export function stopBuzzer(): void {
+  if (currentOscillator) {
+    try {
+      currentOscillator.stop();
+    } catch {
+      // 既に停止している場合は無視
+    }
+    currentOscillator = null;
+    currentGainNode = null;
+  }
+}
+
 // ブザー音を再生
-export function playBuzzer(volume: VolumeLevel, frequency: number = 880, duration: number = 0.15): void {
+export function playBuzzer(volume: VolumeLevel, frequency: number = 880, duration: number = 0.15, persistent: boolean = false): void {
   if (volume === 0) return;
+
+  // 連続音の場合は既存の音を停止
+  if (persistent) {
+    stopBuzzer();
+  }
 
   try {
     const ctx = getAudioContext();
@@ -32,6 +54,19 @@ export function playBuzzer(volume: VolumeLevel, frequency: number = 880, duratio
 
     oscillator.start();
     oscillator.stop(ctx.currentTime + duration);
+
+    // 連続音の場合は参照を保持（手番切り替え時に停止できるように）
+    if (persistent) {
+      currentOscillator = oscillator;
+      currentGainNode = gainNode;
+      // 自然終了時にクリア
+      oscillator.onended = () => {
+        if (currentOscillator === oscillator) {
+          currentOscillator = null;
+          currentGainNode = null;
+        }
+      };
+    }
   } catch (e) {
     console.error('Buzzer playback failed:', e);
   }
@@ -49,7 +84,7 @@ export function speakByoyomi(
     if (seconds <= 5) {
       // 5秒以下: 5秒の時だけ長い連続音を開始（5秒間鳴り続ける）
       if (seconds === 5) {
-        playBuzzer(volume, 880, 5.0);
+        playBuzzer(volume, 880, 5.0, true); // persistent: true で手番切り替え時に停止可能
       }
       // 4〜1秒では新しい音を鳴らさない（5秒で開始した音が続く）
       return;

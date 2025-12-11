@@ -20,8 +20,14 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
   const [isInitialized, setIsInitialized] = useState(false);
 
   // 音声フック
-  const { playByoyomi, playStart, playTimeUp, playConsideration, initSound } =
-    useSound(settings.sound);
+  const {
+    playByoyomi,
+    playStart,
+    playTimeUp,
+    playConsideration,
+    stopByoyomiBuzzer,
+    initSound,
+  } = useSound(settings.sound);
 
   /**
    * 秒読み時のコールバック
@@ -88,9 +94,18 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
       playStart();
       start(1);
     } else {
+      // 手番切り替え時にブザー音を停止
+      stopByoyomiBuzzer();
       tap();
     }
-  }, [handleFirstInteraction, state.isStarted, playStart, start, tap]);
+  }, [
+    handleFirstInteraction,
+    state.isStarted,
+    playStart,
+    start,
+    stopByoyomiBuzzer,
+    tap,
+  ]);
 
   /**
    * プレイヤー1（下/先手/白）のタップ処理

@@ -6,6 +6,7 @@ import {
   speakTimeUp,
   speakConsideration,
   initSpeechSynthesis,
+  stopBuzzer,
 } from '../utils/speech';
 
 interface UseSoundReturn {
@@ -13,6 +14,7 @@ interface UseSoundReturn {
   playStart: () => void;
   playTimeUp: (player: 1 | 2) => void;
   playConsideration: (remaining: number) => void;
+  stopByoyomiBuzzer: () => void;
   initSound: () => void;
 }
 
@@ -40,6 +42,10 @@ export function useSound(settings: SoundSettings): UseSoundReturn {
     speakConsideration(remaining, voiceType, volume);
   }, []);
 
+  const stopByoyomiBuzzer = useCallback(() => {
+    stopBuzzer();
+  }, []);
+
   const initSound = useCallback(() => {
     initSpeechSynthesis();
   }, []);
@@ -49,6 +55,7 @@ export function useSound(settings: SoundSettings): UseSoundReturn {
     playStart,
     playTimeUp,
     playConsideration,
+    stopByoyomiBuzzer,
     initSound,
   };
 }
