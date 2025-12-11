@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { AppSettings } from "../../types";
 import { useTimer, useSound } from "../../hooks";
 import { TimerDisplay } from "./TimerDisplay";
@@ -77,24 +77,6 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
     }
   }, [isInitialized, initSound]);
 
-  // 対局開始時に音声再生
-  useEffect(() => {
-    if (
-      state.isStarted &&
-      state.activePlayer === 1 &&
-      state.player1.moveCount === 0 &&
-      state.player2.moveCount === 0
-    ) {
-      playStart();
-    }
-  }, [
-    state.isStarted,
-    state.activePlayer,
-    state.player1.moveCount,
-    state.player2.moveCount,
-    playStart,
-  ]);
-
   /**
    * タップ（着手）処理
    * ゲーム開始前なら開始、開始後なら手番交代
@@ -102,11 +84,13 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
   const handleTap = useCallback(() => {
     handleFirstInteraction();
     if (!state.isStarted) {
+      // ユーザー操作のコールバック内で音声再生（ブラウザの自動再生ポリシー対応）
+      playStart();
       start(1);
     } else {
       tap();
     }
-  }, [handleFirstInteraction, state.isStarted, start, tap]);
+  }, [handleFirstInteraction, state.isStarted, playStart, start, tap]);
 
   /**
    * プレイヤー1（下/先手/白）のタップ処理
@@ -140,10 +124,12 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
         aria-atomic="true"
       >
         {state.isGameOver
-          ? `ゲーム終了。${state.player1.isTimeUp ? "先手" : "後手"}の時間切れです。`
+          ? `ゲーム終了。${
+              state.player1.isTimeUp ? "先手" : "後手"
+            }の時間切れです。`
           : state.isStarted
-            ? `${state.activePlayer === 1 ? "先手" : "後手"}の手番です。`
-            : "対局開始前。画面をタップして開始してください。"}
+          ? `${state.activePlayer === 1 ? "先手" : "後手"}の手番です。`
+          : "対局開始前。画面をタップして開始してください。"}
       </div>
 
       {/* プレイヤー2（上部・180度回転） */}
