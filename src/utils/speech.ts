@@ -46,8 +46,16 @@ export function speakByoyomi(
   if (volume === 0 || voiceType === 'none') return;
 
   if (voiceType === 'buzzer') {
-    // ブザー音
-    playBuzzer(volume);
+    if (seconds <= 5) {
+      // 5秒以下: 5秒の時だけ長い連続音を開始（5秒間鳴り続ける）
+      if (seconds === 5) {
+        playBuzzer(volume, 880, 5.0);
+      }
+      // 4〜1秒では新しい音を鳴らさない（5秒で開始した音が続く）
+      return;
+    }
+    // 6〜10秒: 短い「ぴっ」という音
+    playBuzzer(volume, 880, 0.15);
     return;
   }
 
