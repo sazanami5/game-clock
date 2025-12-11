@@ -394,7 +394,7 @@ export function Settings({
           <button
             ref={closeButtonRef}
             type="button"
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
             onClick={onClose}
             aria-label="設定を閉じる"
           >
@@ -427,7 +427,7 @@ export function Settings({
               aria-selected={activeTab === tab.id}
               aria-controls={`tabpanel-${tab.id}`}
               tabIndex={activeTab === tab.id ? 0 : -1}
-              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 py-2 text-sm font-medium transition-colors cursor-pointer ${
                 activeTab === tab.id
                   ? "text-color-accent border-b-2 border-color-accent"
                   : "text-color-muted hover:text-color-text"
@@ -524,7 +524,7 @@ export function Settings({
         <footer className="p-4 border-t border-color-border">
           <button
             type="button"
-            className="w-full py-2.5 rounded-lg bg-accent-20 border border-accent-50 text-color-accent font-medium hover:bg-accent-10 transition-colors"
+            className="w-full py-2.5 rounded-lg bg-accent-20 border border-accent-50 text-color-accent font-medium hover:bg-accent-10 transition-colors cursor-pointer"
             onClick={onClose}
           >
             閉じる
