@@ -41,12 +41,3 @@ export function loadSettings(): AppSettings {
   return defaultAppSettings;
 }
 
-// 設定をクリア
-export function clearSettings(): void {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch (e) {
-    console.error('Failed to clear settings:', e);
-  }
-}
-

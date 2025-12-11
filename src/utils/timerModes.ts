@@ -290,17 +290,6 @@ export function swapPlayerTimes(state: TimerState): TimerState {
   };
 }
 
-// 時間を修正する
-export function adjustTime(
-  player: PlayerState,
-  adjustmentMs: number
-): PlayerState {
-  return {
-    ...player,
-    remainingTime: Math.max(0, player.remainingTime + adjustmentMs),
-  };
-}
-
 // ミリ秒を表示用の文字列に変換
 export function formatTime(ms: number, showMillis: boolean = false): string {
   if (ms < 0) ms = 0;
@@ -321,10 +310,5 @@ export function formatTime(ms: number, showMillis: boolean = false): string {
   }
 
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
-
-// 残り時間から秒読みカウント用の秒数を取得
-export function getByoyomiSeconds(ms: number): number {
-  return Math.ceil(ms / 1000);
 }
 

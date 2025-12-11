@@ -228,8 +228,3 @@ export const presets: Preset[] = [
   },
 ];
 
-// プリセットをIDで検索
-export function getPresetById(id: string): Preset | undefined {
-  return presets.find(p => p.id === id);
-}
-

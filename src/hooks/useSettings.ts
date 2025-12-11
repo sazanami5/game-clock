@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { AppSettings, GameModeSettings, SoundSettings, defaultAppSettings } from '../types';
+import { AppSettings, GameModeSettings, SoundSettings } from '../types';
 import { saveSettings, loadSettings } from '../utils/storage';
 import { Preset } from '../types';
 
@@ -9,7 +9,6 @@ interface UseSettingsReturn {
   updateSound: (updates: Partial<SoundSettings>) => void;
   updateHandicap: (updates: Partial<AppSettings['handicap']>) => void;
   applyPreset: (preset: Preset) => void;
-  resetToDefaults: () => void;
 }
 
 export function useSettings(): UseSettingsReturn {
@@ -63,17 +62,12 @@ export function useSettings(): UseSettingsReturn {
     }));
   }, []);
 
-  const resetToDefaults = useCallback(() => {
-    setSettings(defaultAppSettings);
-  }, []);
-
   return {
     settings,
     updateGameMode,
     updateSound,
     updateHandicap,
     applyPreset,
-    resetToDefaults,
   };
 }
 

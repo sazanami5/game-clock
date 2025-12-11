@@ -9,7 +9,6 @@ import {
   processMove,
   resetTimerState,
   swapPlayerTimes,
-  adjustTime,
 } from '../utils/timerModes';
 
 interface UseTimerOptions {
@@ -28,7 +27,6 @@ interface UseTimerReturn {
   reset: () => void;
   tap: () => void;
   swapTimes: () => void;
-  adjustPlayerTime: (player: 1 | 2, adjustmentSeconds: number) => void;
 }
 
 const TICK_INTERVAL = 100; // 100msごとに更新
@@ -200,17 +198,6 @@ export function useTimer(options: UseTimerOptions): UseTimerReturn {
     setState(prevState => swapPlayerTimes(prevState));
   }, []);
 
-  // 時間調整
-  const adjustPlayerTime = useCallback((player: 1 | 2, adjustmentSeconds: number) => {
-    setState(prevState => {
-      const playerKey = player === 1 ? 'player1' : 'player2';
-      return {
-        ...prevState,
-        [playerKey]: adjustTime(prevState[playerKey], adjustmentSeconds * 1000),
-      };
-    });
-  }, []);
-
   // 設定が変更されたらリセット
   useEffect(() => {
     reset();
@@ -231,7 +218,6 @@ export function useTimer(options: UseTimerOptions): UseTimerReturn {
     reset,
     tap,
     swapTimes,
-    adjustPlayerTime,
   };
 }
 

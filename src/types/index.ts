@@ -115,19 +115,6 @@ export function createInitialPlayerState(settings: GameModeSettings): PlayerStat
   };
 }
 
-// デフォルトのタイマー状態を作成
-export function createInitialTimerState(settings: GameModeSettings): TimerState {
-  return {
-    player1: createInitialPlayerState(settings),
-    player2: createInitialPlayerState(settings),
-    activePlayer: null,
-    isStarted: false,
-    isPaused: false,
-    isGameOver: false,
-    elapsedTime: 0,
-  };
-}
-
 // デフォルトのゲームモード設定
 export const defaultGameModeSettings: GameModeSettings = {
   type: 'basic',
