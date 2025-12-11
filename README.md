@@ -2,6 +2,8 @@
 
 将棋・チェス・囲碁対応の多機能対局時計Webアプリケーション。スマートフォンやタブレットで実際の対局に使用できます。
 
+🎮 **デモ**: https://sazanami5.github.io/game-clock/
+
 ## 機能
 
 ### 7つのゲームモード
@@ -59,13 +61,9 @@ bun run build
 
 ## デプロイ
 
-GitHub Pagesへの自動デプロイが設定されています。
+GitHub Pagesへの自動デプロイが設定されています。mainブランチにプッシュすると自動的にデプロイされます。
 
-1. GitHubでリポジトリのSettings → Pagesを開く
-2. Source を "GitHub Actions" に設定
-3. mainブランチにプッシュすると自動的にデプロイされます
-
-デプロイURL: `https://[username].github.io/game-clock/`
+**本番URL**: https://sazanami5.github.io/game-clock/
 
 ## 技術スタック
 
