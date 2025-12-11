@@ -16,6 +16,8 @@ interface TimerDisplayProps {
   playerNumber: 1 | 2;
   /** タップ時のコールバック */
   onTap: () => void;
+  /** 横画面かどうか */
+  isLandscape?: boolean;
 }
 
 /**
@@ -30,6 +32,7 @@ export function TimerDisplay({
   playerLabel,
   playerNumber,
   onTap,
+  isLandscape = false,
 }: TimerDisplayProps) {
   // 残り時間が少ない場合の警告状態を判定
   const isLowTime = player.remainingTime < 30000 && player.remainingTime > 0;
@@ -60,6 +63,7 @@ export function TimerDisplay({
     "timer-btn",
     isActive && "timer-btn-active",
     isReversed && "timer-btn-reversed",
+    isLandscape && "timer-btn-landscape",
     player.isTimeUp && "timer-btn-timeup",
     isCriticalTime && "animate-pulse-critical",
     isLowTime && !isCriticalTime && "animate-pulse-warning",
@@ -69,7 +73,9 @@ export function TimerDisplay({
 
   // 時間表示のクラス名を動的に生成
   const timeClasses = [
-    "text-[clamp(3rem,15vw,6rem)] font-bold tracking-wide",
+    isLandscape
+      ? "text-[clamp(2rem,8vw,5rem)] font-bold tracking-wide"
+      : "text-[clamp(3rem,15vw,6rem)] font-bold tracking-wide",
     isActive && !player.isTimeUp
       ? "text-color-accent time-glow-active"
       : "text-color-text time-glow",
@@ -151,7 +157,13 @@ export function TimerDisplay({
       {/* アクティブインジケーター */}
       {isActive && !player.isTimeUp && (
         <div
-          className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-accent"
+          className={
+            isLandscape
+              ? `absolute top-0 bottom-0 w-1 bg-gradient-accent ${
+                  playerNumber === 2 ? "right-0" : "left-0"
+                }`
+              : "absolute bottom-0 left-0 right-0 h-1 bg-gradient-accent"
+          }
           aria-hidden="true"
         />
       )}

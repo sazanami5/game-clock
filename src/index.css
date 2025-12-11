@@ -106,7 +106,7 @@ button {
    Timer Display Components
    ============================================ */
 .timer-btn {
-  flex: 1;
+  flex: 1 1 0%;  /* 均等に分割するためflex-basisを0に設定 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -114,9 +114,10 @@ button {
   cursor: pointer;
   position: relative;
   transition: all 0.2s ease;
-  min-height: 40vh;
+  min-height: 0;  /* flexboxによる均等分割を優先 */
   padding: 1rem;
   background: linear-gradient(135deg, var(--color-bg-dark) 0%, #16213e 100%);
+  overflow: hidden;  /* コンテンツがはみ出すのを防ぐ */
 }
 
 .timer-btn:hover:not(:disabled) {
@@ -379,8 +380,26 @@ button {
 /* ============================================
    Responsive
    ============================================ */
+
+/* 横画面用のタイマーボタンスタイル */
+.timer-btn-landscape {
+  min-width: 0;
+  min-height: 100%;
+}
+
 @media (orientation: landscape) {
   .timer-btn {
-    min-height: auto;
+    min-height: 0;
+  }
+  
+  /* 横画面でのコントロールボタンをコンパクトに */
+  .control-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .control-btn svg {
+    width: 0.875rem;
+    height: 0.875rem;
   }
 }

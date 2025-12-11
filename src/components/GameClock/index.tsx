@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { AppSettings } from "../../types";
-import { useTimer, useSound } from "../../hooks";
+import { useTimer, useSound, useOrientation } from "../../hooks";
 import { TimerDisplay } from "./TimerDisplay";
 import { ControlPanel } from "./ControlPanel";
 
@@ -18,6 +18,9 @@ interface GameClockProps {
 export function GameClock({ settings, onOpenSettings }: GameClockProps) {
   // 音声システムの初期化状態
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // 画面の向きを検出
+  const { isLandscape } = useOrientation();
 
   // 音声フック
   const {
@@ -127,7 +130,7 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
 
   return (
     <main
-      className="h-full flex flex-col"
+      className={`h-full flex ${isLandscape ? "flex-row" : "flex-col"}`}
       role="application"
       aria-label="対局時計"
     >
@@ -147,15 +150,16 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
           : "対局開始前。画面をタップして開始してください。"}
       </div>
 
-      {/* プレイヤー2（上部・180度回転） */}
+      {/* プレイヤー2（縦:上部・180度回転 / 横:左側） */}
       <TimerDisplay
         player={state.player2}
         settings={settings.gameMode}
         isActive={state.activePlayer === 2 && !state.isPaused}
-        isReversed={true}
+        isReversed={!isLandscape}
         playerLabel="後手 / 黒"
         playerNumber={2}
         onTap={handlePlayer2Tap}
+        isLandscape={isLandscape}
       />
 
       {/* コントロールパネル */}
@@ -166,9 +170,10 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
         onReset={reset}
         onSettings={onOpenSettings}
         onSwapTimes={swapTimes}
+        isLandscape={isLandscape}
       />
 
-      {/* プレイヤー1（下部） */}
+      {/* プレイヤー1（縦:下部 / 横:右側） */}
       <TimerDisplay
         player={state.player1}
         settings={settings.gameMode}
@@ -177,6 +182,7 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
         playerLabel="先手 / 白"
         playerNumber={1}
         onTap={handlePlayer1Tap}
+        isLandscape={isLandscape}
       />
     </main>
   );

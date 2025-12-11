@@ -13,6 +13,8 @@ interface ControlPanelProps {
   onSettings: () => void;
   /** 残時間入替ボタン押下時のコールバック（千日手対応） */
   onSwapTimes: () => void;
+  /** 横画面かどうか */
+  isLandscape?: boolean;
 }
 
 /**
@@ -26,16 +28,26 @@ export function ControlPanel({
   onReset,
   onSettings,
   onSwapTimes,
+  isLandscape = false,
 }: ControlPanelProps) {
   const { isStarted, isPaused, isGameOver } = state;
 
   return (
     <nav
-      className="bg-gradient-panel px-3 py-2 flex flex-col items-center gap-2 border-y border-accent-10"
+      className={`bg-gradient-panel flex items-center gap-2 ${
+        isLandscape
+          ? "flex-col px-2 py-3 border-x border-accent-10"
+          : "flex-col px-3 py-2 border-y border-accent-10"
+      }`}
       aria-label="タイマー操作"
       role="toolbar"
     >
-      <div className="flex gap-2 flex-wrap justify-center" role="group">
+      <div
+        className={`flex gap-2 justify-center ${
+          isLandscape ? "flex-col" : "flex-wrap"
+        }`}
+        role="group"
+      >
         {!isStarted ? (
           // ゲーム開始前は設定ボタンのみ表示
           <button
