@@ -1,26 +1,34 @@
-import { useCallback, useRef } from 'react';
-import { SoundSettings, VoiceType, VolumeLevel } from '../types';
+/**
+ * 音声管理カスタムフック
+ */
+
+import { useCallback, useRef, useEffect } from 'react';
 import {
   speakByoyomi,
   speakStart,
   speakTimeUp,
   speakConsideration,
-  initSpeechSynthesis,
   stopBuzzer,
+  initSpeechSynthesis,
 } from '../utils/speech';
+import type { SoundSettings, VoiceType, VolumeLevel, PlayerNumber } from '../types';
 
 interface UseSoundReturn {
-  playByoyomi: (seconds: number) => void;
-  playStart: () => void;
-  playTimeUp: (player: 1 | 2) => void;
-  playConsideration: (remaining: number) => void;
-  stopByoyomiBuzzer: () => void;
-  initSound: () => void;
+  readonly playByoyomi: (seconds: number) => void;
+  readonly playStart: () => void;
+  readonly playTimeUp: (player: PlayerNumber) => void;
+  readonly playConsideration: (remaining: number) => void;
+  readonly stopByoyomiBuzzer: () => void;
+  readonly initSound: () => void;
 }
 
-export function useSound(settings: SoundSettings): UseSoundReturn {
+export const useSound = (settings: SoundSettings): UseSoundReturn => {
   const settingsRef = useRef(settings);
-  settingsRef.current = settings;
+  
+  // useEffectでrefを更新
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
 
   const playByoyomi = useCallback((seconds: number) => {
     const { voiceType, volume } = settingsRef.current;
@@ -32,7 +40,7 @@ export function useSound(settings: SoundSettings): UseSoundReturn {
     speakStart(voiceType, volume);
   }, []);
 
-  const playTimeUp = useCallback((player: 1 | 2) => {
+  const playTimeUp = useCallback((player: PlayerNumber) => {
     const { voiceType, volume } = settingsRef.current;
     speakTimeUp(player, voiceType, volume);
   }, []);
@@ -58,33 +66,30 @@ export function useSound(settings: SoundSettings): UseSoundReturn {
     stopByoyomiBuzzer,
     initSound,
   };
-}
+};
 
-// 音声タイプの表示名
-export function getVoiceTypeName(type: VoiceType): string {
-  switch (type) {
-    case 'japanese':
-      return '日本語';
-    case 'english':
-      return 'English';
-    case 'buzzer':
-      return 'ブザー';
-    case 'none':
-      return 'なし';
-  }
-}
+/**
+ * 音声タイプの表示名を取得
+ */
+export const getVoiceTypeName = (type: VoiceType): string => {
+  const names: Record<VoiceType, string> = {
+    japanese: '日本語',
+    english: 'English',
+    buzzer: 'ブザー',
+    none: 'なし',
+  };
+  return names[type];
+};
 
-// 音量レベルの表示名
-export function getVolumeLevelName(level: VolumeLevel): string {
-  switch (level) {
-    case 0:
-      return '消音';
-    case 1:
-      return '小';
-    case 2:
-      return '中';
-    case 3:
-      return '大';
-  }
-}
-
+/**
+ * 音量レベルの表示名を取得
+ */
+export const getVolumeLevelName = (level: VolumeLevel): string => {
+  const names: Record<VolumeLevel, string> = {
+    0: '消音',
+    1: '小',
+    2: '中',
+    3: '大',
+  };
+  return names[level];
+};

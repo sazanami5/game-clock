@@ -1,15 +1,19 @@
-import { AppSettings } from "../../types";
-import { TimeInput } from "./TimeInput";
+/**
+ * ハンデ設定コンポーネント
+ */
+
+import { TimeInput } from './TimeInput';
+import type { HandicapSettings } from '../../types';
 
 interface HandicapSettingsProps {
-  handicap: AppSettings["handicap"];
-  onChange: (updates: Partial<AppSettings["handicap"]>) => void;
+  readonly handicap: HandicapSettings;
+  readonly onChange: (updates: Partial<HandicapSettings>) => void;
 }
 
-export function HandicapSettings({
+export const HandicapSettings = ({
   handicap,
   onChange,
-}: HandicapSettingsProps) {
+}: HandicapSettingsProps) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
@@ -42,4 +46,4 @@ export function HandicapSettings({
       )}
     </div>
   );
-}
+};

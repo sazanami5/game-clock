@@ -1,43 +1,54 @@
-import { AppSettings, defaultAppSettings } from '../types';
+/**
+ * ストレージユーティリティ
+ * ローカルストレージへの設定の保存と読み込み
+ */
 
-const STORAGE_KEY = 'game-clock-settings';
+import { STORAGE_KEY } from '../constants';
+import { DEFAULT_APP_SETTINGS } from '../types';
+import type { AppSettings } from '../types';
 
-// 設定を保存
-export function saveSettings(settings: AppSettings): void {
+/**
+ * 設定をローカルストレージに保存
+ * @param settings 保存する設定
+ */
+export const saveSettings = (settings: AppSettings): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  } catch (e) {
-    console.error('Failed to save settings:', e);
+  } catch (error) {
+    console.error('Failed to save settings:', error);
   }
-}
+};
 
-// 設定を読み込み
-export function loadSettings(): AppSettings {
+/**
+ * ローカルストレージから設定を読み込み
+ * @returns 保存されている設定、または存在しない場合はデフォルト設定
+ */
+export const loadSettings = (): AppSettings => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      // デフォルト値とマージして、新しいプロパティがあっても対応
-      return {
-        ...defaultAppSettings,
-        ...parsed,
-        gameMode: {
-          ...defaultAppSettings.gameMode,
-          ...parsed.gameMode,
-        },
-        sound: {
-          ...defaultAppSettings.sound,
-          ...parsed.sound,
-        },
-        handicap: {
-          ...defaultAppSettings.handicap,
-          ...parsed.handicap,
-        },
-      };
+    if (!stored) {
+      return DEFAULT_APP_SETTINGS;
     }
-  } catch (e) {
-    console.error('Failed to load settings:', e);
-  }
-  return defaultAppSettings;
-}
 
+    const parsed = JSON.parse(stored) as Partial<AppSettings>;
+
+    // デフォルト値とマージして、新しいプロパティがあっても対応
+    return {
+      gameMode: {
+        ...DEFAULT_APP_SETTINGS.gameMode,
+        ...(parsed.gameMode ?? {}),
+      },
+      sound: {
+        ...DEFAULT_APP_SETTINGS.sound,
+        ...(parsed.sound ?? {}),
+      },
+      handicap: {
+        ...DEFAULT_APP_SETTINGS.handicap,
+        ...(parsed.handicap ?? {}),
+      },
+    };
+  } catch (error) {
+    console.error('Failed to load settings:', error);
+    return DEFAULT_APP_SETTINGS;
+  }
+};

@@ -1,7 +1,11 @@
-import { Preset } from '../types';
+/**
+ * プリセット定義
+ */
 
-// よく使うプリセット設定
-export const presets: Preset[] = [
+import type { Preset } from '../types';
+
+/** よく使うプリセット設定 */
+export const PRESETS: readonly Preset[] = [
   {
     id: 'shogi-wars-3min',
     name: '将棋ウォーズ 3分切れ負け',
@@ -226,5 +230,8 @@ export const presets: Preset[] = [
       additionalTime: 300,
     },
   },
-];
+] as const;
 
+/** 後方互換性のための旧名称 */
+/** @deprecated Use PRESETS instead */
+export const presets = PRESETS;

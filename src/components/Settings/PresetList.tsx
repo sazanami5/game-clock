@@ -1,14 +1,21 @@
-import { Preset, GameModeSettings } from "../../types";
-import { presets } from "../../utils/presets";
+/**
+ * プリセット一覧コンポーネント
+ */
+
+import { PRESETS } from '../../utils/presets';
+import type { Preset, GameModeSettings } from '../../types';
 
 interface PresetListProps {
-  currentSettings: GameModeSettings;
-  onSelect: (preset: Preset) => void;
+  readonly currentSettings: GameModeSettings;
+  readonly onSelect: (preset: Preset) => void;
 }
 
-export function PresetList({ currentSettings, onSelect }: PresetListProps) {
+export const PresetList = ({
+  currentSettings,
+  onSelect,
+}: PresetListProps) => {
   // プリセットがマッチしているか確認
-  const isPresetSelected = (preset: Preset) => {
+  const isPresetSelected = (preset: Preset): boolean => {
     const s = preset.settings;
     const c = currentSettings;
     return (
@@ -22,27 +29,27 @@ export function PresetList({ currentSettings, onSelect }: PresetListProps) {
   // カテゴリ別に分類
   const categories = [
     {
-      name: "将棋",
-      presets: presets.filter(
+      name: '将棋',
+      presets: PRESETS.filter(
         (p) =>
-          p.id.startsWith("shogi") ||
-          p.id === "nhk-cup" ||
-          p.id === "abema-tournament"
+          p.id.startsWith('shogi') ||
+          p.id === 'nhk-cup' ||
+          p.id === 'abema-tournament'
       ),
     },
     {
-      name: "チェス",
-      presets: presets.filter((p) => p.id.startsWith("chess")),
+      name: 'チェス',
+      presets: PRESETS.filter((p) => p.id.startsWith('chess')),
     },
     {
-      name: "囲碁",
-      presets: presets.filter((p) => p.id.startsWith("go")),
+      name: '囲碁',
+      presets: PRESETS.filter((p) => p.id.startsWith('go')),
     },
     {
-      name: "その他",
-      presets: presets.filter((p) => p.id.startsWith("canadian")),
+      name: 'その他',
+      presets: PRESETS.filter((p) => p.id.startsWith('canadian')),
     },
-  ];
+  ] as const;
 
   return (
     <div className="space-y-4">
@@ -55,8 +62,9 @@ export function PresetList({ currentSettings, onSelect }: PresetListProps) {
             {category.presets.map((preset) => (
               <button
                 key={preset.id}
+                type="button"
                 className={`preset-card text-left ${
-                  isPresetSelected(preset) ? "preset-card-selected" : ""
+                  isPresetSelected(preset) ? 'preset-card-selected' : ''
                 }`}
                 onClick={() => onSelect(preset)}
               >
@@ -73,4 +81,4 @@ export function PresetList({ currentSettings, onSelect }: PresetListProps) {
       ))}
     </div>
   );
-}
+};
