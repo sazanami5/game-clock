@@ -1,32 +1,32 @@
-import { useState, useEffect } from "react";
-
 /**
- * 画面の向きを検出するカスタムフック
- * @returns isLandscape - 横画面かどうか
+ * 画面の向き検出カスタムフック
  */
-export function useOrientation() {
-  const [isLandscape, setIsLandscape] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(orientation: landscape)").matches;
-  });
+
+import { useState, useEffect } from 'react';
+
+interface UseOrientationReturn {
+  readonly isLandscape: boolean;
+}
+
+export const useOrientation = (): UseOrientationReturn => {
+  const [isLandscape, setIsLandscape] = useState(
+    () => window.innerWidth > window.innerHeight
+  );
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(orientation: landscape)");
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      setIsLandscape(e.matches);
+    const handleResize = () => {
+      setIsLandscape(window.innerWidth > window.innerHeight);
     };
 
-    // イベントリスナーを追加
-    mediaQuery.addEventListener("change", handleChange);
-
-    // 初期値を設定
-    setIsLandscape(mediaQuery.matches);
+    window.addEventListener('resize', handleResize);
+    // オリエンテーション変更イベントもリッスン
+    window.addEventListener('orientationchange', handleResize);
 
     return () => {
-      mediaQuery.removeEventListener("change", handleChange);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
     };
   }, []);
 
   return { isLandscape };
-}
+};

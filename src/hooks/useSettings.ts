@@ -1,17 +1,26 @@
+/**
+ * 設定管理カスタムフック
+ */
+
 import { useState, useCallback, useEffect } from 'react';
-import { AppSettings, GameModeSettings, SoundSettings } from '../types';
 import { saveSettings, loadSettings } from '../utils/storage';
-import { Preset } from '../types';
+import type {
+  AppSettings,
+  GameModeSettings,
+  SoundSettings,
+  HandicapSettings,
+  Preset,
+} from '../types';
 
 interface UseSettingsReturn {
-  settings: AppSettings;
-  updateGameMode: (updates: Partial<GameModeSettings>) => void;
-  updateSound: (updates: Partial<SoundSettings>) => void;
-  updateHandicap: (updates: Partial<AppSettings['handicap']>) => void;
-  applyPreset: (preset: Preset) => void;
+  readonly settings: AppSettings;
+  readonly updateGameMode: (updates: Partial<GameModeSettings>) => void;
+  readonly updateSound: (updates: Partial<SoundSettings>) => void;
+  readonly updateHandicap: (updates: Partial<HandicapSettings>) => void;
+  readonly applyPreset: (preset: Preset) => void;
 }
 
-export function useSettings(): UseSettingsReturn {
+export const useSettings = (): UseSettingsReturn => {
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
 
   // 設定が変更されたら保存
@@ -19,18 +28,21 @@ export function useSettings(): UseSettingsReturn {
     saveSettings(settings);
   }, [settings]);
 
-  const updateGameMode = useCallback((updates: Partial<GameModeSettings>) => {
-    setSettings(prev => ({
-      ...prev,
-      gameMode: {
-        ...prev.gameMode,
-        ...updates,
-      },
-    }));
-  }, []);
+  const updateGameMode = useCallback(
+    (updates: Partial<GameModeSettings>) => {
+      setSettings((prev) => ({
+        ...prev,
+        gameMode: {
+          ...prev.gameMode,
+          ...updates,
+        },
+      }));
+    },
+    []
+  );
 
   const updateSound = useCallback((updates: Partial<SoundSettings>) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
       sound: {
         ...prev.sound,
@@ -39,18 +51,21 @@ export function useSettings(): UseSettingsReturn {
     }));
   }, []);
 
-  const updateHandicap = useCallback((updates: Partial<AppSettings['handicap']>) => {
-    setSettings(prev => ({
-      ...prev,
-      handicap: {
-        ...prev.handicap,
-        ...updates,
-      },
-    }));
-  }, []);
+  const updateHandicap = useCallback(
+    (updates: Partial<HandicapSettings>) => {
+      setSettings((prev) => ({
+        ...prev,
+        handicap: {
+          ...prev.handicap,
+          ...updates,
+        },
+      }));
+    },
+    []
+  );
 
   const applyPreset = useCallback((preset: Preset) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
       gameMode: preset.settings,
       // ハンデ設定も更新
@@ -69,5 +84,4 @@ export function useSettings(): UseSettingsReturn {
     updateHandicap,
     applyPreset,
   };
-}
-
+};

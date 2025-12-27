@@ -1,44 +1,72 @@
-import { VoiceType, VolumeLevel } from '../types';
+/**
+ * 音声・音響関連のユーティリティ
+ */
 
-// AudioContextのキャッシュ
+import {
+  DEFAULT_BUZZER_FREQUENCY,
+  SHORT_BEEP_DURATION,
+  LONG_BEEP_DURATION,
+  CONTINUOUS_BEEP_DURATION,
+  BYOYOMI_CONTINUOUS_START,
+  LOCALE_JAPANESE,
+  LOCALE_ENGLISH,
+  SPEECH_RATE_NORMAL,
+  SPEECH_RATE_FAST,
+} from '../constants';
+import type { VoiceType, VolumeLevel, PlayerNumber } from '../types';
+
+/** AudioContextのキャッシュ */
 let audioContext: AudioContext | null = null;
 
-// 現在再生中の連続ブザー音（手番切り替え時に停止するため）
+/** 現在再生中の連続ブザー音（手番切り替え時に停止するため） */
 let currentOscillator: OscillatorNode | null = null;
 
-// 音声リストのキャッシュ
+/** 音声リストのキャッシュ */
 let cachedVoices: SpeechSynthesisVoice[] = [];
 
-// 音声合成が初期化済みかどうか
+/** 音声合成が初期化済みかどうか */
 let speechInitialized = false;
 
-// AudioContextを取得（遅延初期化）
-function getAudioContext(): AudioContext {
+/**
+ * AudioContextを取得（遅延初期化）
+ */
+const getAudioContext = (): AudioContext => {
   if (!audioContext) {
     audioContext = new AudioContext();
   }
   return audioContext;
-}
+};
 
-// 音声リストを更新
-function updateVoices(): void {
+/**
+ * 音声リストを更新
+ */
+const updateVoices = (): void => {
   const voices = window.speechSynthesis.getVoices();
   if (voices.length > 0) {
     cachedVoices = voices;
   }
-}
+};
 
-// 音声を取得（キャッシュを使用）
-function getVoice(lang: string): SpeechSynthesisVoice | null {
+/**
+ * 音声を取得（キャッシュを使用）
+ */
+const getVoice = (lang: string): SpeechSynthesisVoice | null => {
   // キャッシュが空なら再取得
   if (cachedVoices.length === 0) {
     updateVoices();
   }
-  return cachedVoices.find(v => v.lang.startsWith(lang)) || null;
-}
+  return cachedVoices.find((v) => v.lang.startsWith(lang)) ?? null;
+};
 
-// 音声合成を実行（共通処理）
-function speak(text: string, lang: string, rate: number, volume: VolumeLevel): void {
+/**
+ * 音声合成を実行（共通処理）
+ */
+const speak = (
+  text: string,
+  lang: string,
+  rate: number,
+  volume: VolumeLevel
+): void => {
   if (!('speechSynthesis' in window)) {
     return;
   }
@@ -77,10 +105,12 @@ function speak(text: string, lang: string, rate: number, volume: VolumeLevel): v
   requestAnimationFrame(() => {
     synth.speak(utterance);
   });
-}
+};
 
-// 連続ブザー音を停止
-export function stopBuzzer(): void {
+/**
+ * 連続ブザー音を停止
+ */
+export const stopBuzzer = (): void => {
   if (currentOscillator) {
     try {
       currentOscillator.stop();
@@ -89,10 +119,17 @@ export function stopBuzzer(): void {
     }
     currentOscillator = null;
   }
-}
+};
 
-// ブザー音を再生
-export function playBuzzer(volume: VolumeLevel, frequency: number = 880, duration: number = 0.15, persistent: boolean = false): void {
+/**
+ * ブザー音を再生
+ */
+export const playBuzzer = (
+  volume: VolumeLevel,
+  frequency: number = DEFAULT_BUZZER_FREQUENCY,
+  duration: number = SHORT_BEEP_DURATION,
+  persistent = false
+): void => {
   if (volume === 0) return;
 
   // 連続音の場合は既存の音を停止
@@ -128,44 +165,16 @@ export function playBuzzer(volume: VolumeLevel, frequency: number = 880, duratio
         }
       };
     }
-  } catch (e) {
-    console.error('Buzzer playback failed:', e);
+  } catch (error) {
+    console.error('Buzzer playback failed:', error);
   }
-}
+};
 
-// 秒読み音声を話す
-export function speakByoyomi(
-  seconds: number,
-  voiceType: VoiceType,
-  volume: VolumeLevel
-): void {
-  if (volume === 0 || voiceType === 'none') return;
-
-  if (voiceType === 'buzzer') {
-    if (seconds <= 5) {
-      // 5秒以下: 5秒の時だけ長い連続音を開始（5秒間鳴り続ける）
-      if (seconds === 5) {
-        playBuzzer(volume, 880, 5.0, true); // persistent: true で手番切り替え時に停止可能
-      }
-      // 4〜1秒では新しい音を鳴らさない（5秒で開始した音が続く）
-      return;
-    }
-    // 6〜10秒: 短い「ぴっ」という音
-    playBuzzer(volume, 880, 0.15);
-    return;
-  }
-
-  const text = voiceType === 'japanese' 
-    ? getJapaneseByoyomiText(seconds)
-    : getEnglishByoyomiText(seconds);
-
-  const lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';
-  speak(text, lang, 1.2, volume);
-}
-
-// 日本語の秒読みテキストを生成
-// 10秒前から「1、2、3、4、5、6、7、8、9、時間切れです」とカウントアップ
-function getJapaneseByoyomiText(seconds: number): string {
+/**
+ * 日本語の秒読みテキストを生成
+ * 10秒前から「1、2、3、4、5、6、7、8、9、時間切れです」とカウントアップ
+ */
+const getJapaneseByoyomiText = (seconds: number): string => {
   if (seconds <= 1) return '時間切れです';
   // 残り10秒→1、残り9秒→2、... 残り2秒→9
   if (seconds <= 10) {
@@ -175,11 +184,13 @@ function getJapaneseByoyomiText(seconds: number): string {
   if (seconds === 20) return '20秒';
   if (seconds === 30) return '30秒';
   return `${seconds}秒`;
-}
+};
 
-// 英語の秒読みテキストを生成
-// 10秒前から「1、2、3、4、5、6、7、8、9、time's up」とカウントアップ
-function getEnglishByoyomiText(seconds: number): string {
+/**
+ * 英語の秒読みテキストを生成
+ * 10秒前から「1、2、3、4、5、6、7、8、9、time's up」とカウントアップ
+ */
+const getEnglishByoyomiText = (seconds: number): string => {
   if (seconds <= 1) return "time's up";
   // 残り10秒→1、残り9秒→2、... 残り2秒→9
   if (seconds <= 10) {
@@ -189,31 +200,74 @@ function getEnglishByoyomiText(seconds: number): string {
   if (seconds === 20) return '20 seconds';
   if (seconds === 30) return '30 seconds';
   return `${seconds}`;
-}
+};
 
-// 開始時の音声
-export function speakStart(voiceType: VoiceType, volume: VolumeLevel): void {
+/**
+ * 秒読み音声を話す
+ */
+export const speakByoyomi = (
+  seconds: number,
+  voiceType: VoiceType,
+  volume: VolumeLevel
+): void => {
   if (volume === 0 || voiceType === 'none') return;
 
   if (voiceType === 'buzzer') {
-    playBuzzer(volume, 660, 0.3);
+    if (seconds <= BYOYOMI_CONTINUOUS_START) {
+      // 5秒以下: 5秒の時だけ長い連続音を開始（5秒間鳴り続ける）
+      if (seconds === BYOYOMI_CONTINUOUS_START) {
+        playBuzzer(
+          volume,
+          DEFAULT_BUZZER_FREQUENCY,
+          CONTINUOUS_BEEP_DURATION,
+          true
+        ); // persistent: true で手番切り替え時に停止可能
+      }
+      // 4〜1秒では新しい音を鳴らさない（5秒で開始した音が続く）
+      return;
+    }
+    // 6〜10秒: 短い「ぴっ」という音
+    playBuzzer(volume, DEFAULT_BUZZER_FREQUENCY, SHORT_BEEP_DURATION);
     return;
   }
 
-  const text = voiceType === 'japanese' 
-    ? 'よろしくお願いします'
-    : "Let's start the game";
+  const text =
+    voiceType === 'japanese'
+      ? getJapaneseByoyomiText(seconds)
+      : getEnglishByoyomiText(seconds);
 
-  const lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';
-  speak(text, lang, 1.0, volume);
-}
+  const lang = voiceType === 'japanese' ? LOCALE_JAPANESE : LOCALE_ENGLISH;
+  speak(text, lang, SPEECH_RATE_FAST, volume);
+};
 
-// 終了時の音声
-export function speakTimeUp(
-  player: 1 | 2,
+/**
+ * 開始時の音声
+ */
+export const speakStart = (voiceType: VoiceType, volume: VolumeLevel): void => {
+  if (volume === 0 || voiceType === 'none') return;
+
+  if (voiceType === 'buzzer') {
+    playBuzzer(volume, 660, LONG_BEEP_DURATION);
+    return;
+  }
+
+  const text =
+    voiceType === 'japanese'
+      ? 'よろしくお願いします'
+      : "Let's start the game";
+
+  const lang = voiceType === 'japanese' ? LOCALE_JAPANESE : LOCALE_ENGLISH;
+  speak(text, lang, SPEECH_RATE_NORMAL, volume);
+};
+
+/**
+ * 終了時の音声
+ */
+export const speakTimeUp = (
+  player: PlayerNumber,
   voiceType: VoiceType,
   volume: VolumeLevel
-): void {
+): void => {
   if (volume === 0 || voiceType === 'none') return;
 
   if (voiceType === 'buzzer') {
@@ -224,24 +278,32 @@ export function speakTimeUp(
   }
 
   // プレイヤー名を取得
-  const playerName = voiceType === 'japanese'
-    ? (player === 1 ? '先手' : '後手')
-    : (player === 1 ? 'Player one' : 'Player two');
+  const playerName =
+    voiceType === 'japanese'
+      ? player === 1
+        ? '先手'
+        : '後手'
+      : player === 1
+      ? 'Player one'
+      : 'Player two';
 
-  const text = voiceType === 'japanese' 
-    ? `${playerName}、時間切れです`
-    : `${playerName}, time is up`;
+  const text =
+    voiceType === 'japanese'
+      ? `${playerName}、時間切れです`
+      : `${playerName}, time is up`;
 
-  const lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';
-  speak(text, lang, 1.0, volume);
-}
+  const lang = voiceType === 'japanese' ? LOCALE_JAPANESE : LOCALE_ENGLISH;
+  speak(text, lang, SPEECH_RATE_NORMAL, volume);
+};
 
-// 考慮時間使用時の音声
-export function speakConsideration(
+/**
+ * 考慮時間使用時の音声
+ */
+export const speakConsideration = (
   remaining: number,
   voiceType: VoiceType,
   volume: VolumeLevel
-): void {
+): void => {
   if (volume === 0 || voiceType === 'none') return;
 
   if (voiceType === 'buzzer') {
@@ -249,22 +311,25 @@ export function speakConsideration(
     return;
   }
 
-  const text = voiceType === 'japanese' 
-    ? `考慮時間、残り${remaining}回`
-    : `Consideration time, ${remaining} remaining`;
+  const text =
+    voiceType === 'japanese'
+      ? `考慮時間、残り${remaining}回`
+      : `Consideration time, ${remaining} remaining`;
 
-  const lang = voiceType === 'japanese' ? 'ja-JP' : 'en-US';
-  speak(text, lang, 1.2, volume);
-}
+  const lang = voiceType === 'japanese' ? LOCALE_JAPANESE : LOCALE_ENGLISH;
+  speak(text, lang, SPEECH_RATE_FAST, volume);
+};
 
-// 音声合成の初期化（ユーザー操作後に呼ぶ）
-export function initSpeechSynthesis(): void {
+/**
+ * 音声合成の初期化（ユーザー操作後に呼ぶ）
+ */
+export const initSpeechSynthesis = (): void => {
   if (speechInitialized) return;
 
   if ('speechSynthesis' in window) {
     // 音声リストを読み込んでキャッシュ
     updateVoices();
-    
+
     // 音声リストが非同期で読み込まれる場合に備える
     window.speechSynthesis.onvoiceschanged = () => {
       updateVoices();
@@ -277,5 +342,4 @@ export function initSpeechSynthesis(): void {
   }
   // AudioContextを初期化
   getAudioContext();
-}
-
+};
