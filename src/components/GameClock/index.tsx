@@ -1,21 +1,25 @@
-import { useCallback, useState } from "react";
-import { AppSettings } from "../../types";
-import { useTimer, useSound, useOrientation } from "../../hooks";
-import { TimerDisplay } from "./TimerDisplay";
-import { ControlPanel } from "./ControlPanel";
-
-interface GameClockProps {
-  /** アプリケーション設定 */
-  settings: AppSettings;
-  /** 設定画面を開くコールバック */
-  onOpenSettings: () => void;
-}
-
 /**
  * 対局時計メインコンポーネント
  * 2人のプレイヤーのタイマーと操作パネルを管理
  */
-export function GameClock({ settings, onOpenSettings }: GameClockProps) {
+
+import { useCallback, useState } from 'react';
+import { useTimer, useSound, useOrientation } from '../../hooks';
+import { TimerDisplay } from './TimerDisplay';
+import { ControlPanel } from './ControlPanel';
+import type { AppSettings, PlayerNumber } from '../../types';
+
+interface GameClockProps {
+  /** アプリケーション設定 */
+  readonly settings: AppSettings;
+  /** 設定画面を開くコールバック */
+  readonly onOpenSettings: () => void;
+}
+
+/**
+ * 対局時計メインコンポーネント
+ */
+export const GameClock = ({ settings, onOpenSettings }: GameClockProps) => {
   // 音声システムの初期化状態
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -37,7 +41,7 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
    * 10秒以下、または10/20/30秒の時に読み上げ
    */
   const handleByoyomiTick = useCallback(
-    (_player: 1 | 2, seconds: number) => {
+    (_player: PlayerNumber, seconds: number) => {
       if (seconds <= 10 || seconds === 20 || seconds === 30) {
         playByoyomi(seconds);
       }
@@ -50,7 +54,7 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
    * プレイヤー名を含めた音声を再生
    */
   const handleTimeUp = useCallback(
-    (player: 1 | 2) => {
+    (player: PlayerNumber) => {
       playTimeUp(player);
     },
     [playTimeUp]
@@ -60,7 +64,7 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
    * 考慮時間開始時のコールバック
    */
   const handleConsiderationStart = useCallback(
-    (_player: 1 | 2, remaining: number) => {
+    (_player: PlayerNumber, remaining: number) => {
       playConsideration(remaining);
     },
     [playConsideration]
@@ -130,7 +134,7 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
 
   return (
     <main
-      className={`h-full flex ${isLandscape ? "flex-row" : "flex-col"}`}
+      className={`h-full flex ${isLandscape ? 'flex-row' : 'flex-col'}`}
       role="application"
       aria-label="対局時計"
     >
@@ -143,11 +147,11 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
       >
         {state.isGameOver
           ? `ゲーム終了。${
-              state.player1.isTimeUp ? "先手" : "後手"
+              state.player1.isTimeUp ? '先手' : '後手'
             }の時間切れです。`
           : state.isStarted
-          ? `${state.activePlayer === 1 ? "先手" : "後手"}の手番です。`
-          : "対局開始前。画面をタップして開始してください。"}
+          ? `${state.activePlayer === 1 ? '先手' : '後手'}の手番です。`
+          : '対局開始前。画面をタップして開始してください。'}
       </div>
 
       {/* プレイヤー2（縦:上部・180度回転 / 横:左側） */}
@@ -186,4 +190,4 @@ export function GameClock({ settings, onOpenSettings }: GameClockProps) {
       />
     </main>
   );
-}
+};

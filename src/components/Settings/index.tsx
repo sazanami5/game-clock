@@ -1,51 +1,61 @@
-import { useState, useRef, useEffect } from "react";
-import { AppSettings, GameModeSettings, Preset } from "../../types";
-import { PresetList } from "./PresetList";
-import { ModeSelector } from "./ModeSelector";
-import { TimeInput } from "./TimeInput";
-import { SoundSettings } from "./SoundSettings";
-import { HandicapSettings } from "./HandicapSettings";
-
-type TabType = "preset" | "custom" | "sound" | "handicap";
-
-interface SettingsProps {
-  /** アプリケーション設定 */
-  settings: AppSettings;
-  /** ゲームモード設定更新コールバック */
-  onUpdateGameMode: (updates: Partial<GameModeSettings>) => void;
-  /** 音声設定更新コールバック */
-  onUpdateSound: (updates: Partial<AppSettings["sound"]>) => void;
-  /** ハンデ設定更新コールバック */
-  onUpdateHandicap: (updates: Partial<AppSettings["handicap"]>) => void;
-  /** プリセット適用コールバック */
-  onApplyPreset: (preset: Preset) => void;
-  /** 設定画面を閉じるコールバック */
-  onClose: () => void;
-}
-
 /**
  * 設定画面コンポーネント
  * モーダルダイアログとして表示され、各種設定を変更可能
  */
-export function Settings({
+
+import { useState, useRef, useEffect } from 'react';
+import { CloseIcon } from '../Icons';
+import { PresetList } from './PresetList';
+import { ModeSelector } from './ModeSelector';
+import { TimeInput } from './TimeInput';
+import { SoundSettings } from './SoundSettings';
+import { HandicapSettings } from './HandicapSettings';
+import type { AppSettings, GameModeSettings, Preset } from '../../types';
+
+type TabType = 'preset' | 'custom' | 'sound' | 'handicap';
+
+interface Tab {
+  readonly id: TabType;
+  readonly label: string;
+}
+
+const TABS: readonly Tab[] = [
+  { id: 'preset', label: 'プリセット' },
+  { id: 'custom', label: 'カスタム' },
+  { id: 'sound', label: '音声' },
+  { id: 'handicap', label: 'ハンデ' },
+] as const;
+
+interface SettingsProps {
+  /** アプリケーション設定 */
+  readonly settings: AppSettings;
+  /** ゲームモード設定更新コールバック */
+  readonly onUpdateGameMode: (updates: Partial<GameModeSettings>) => void;
+  /** 音声設定更新コールバック */
+  readonly onUpdateSound: (
+    updates: Partial<AppSettings['sound']>
+  ) => void;
+  /** ハンデ設定更新コールバック */
+  readonly onUpdateHandicap: (
+    updates: Partial<AppSettings['handicap']>
+  ) => void;
+  /** プリセット適用コールバック */
+  readonly onApplyPreset: (preset: Preset) => void;
+  /** 設定画面を閉じるコールバック */
+  readonly onClose: () => void;
+}
+
+export const Settings = ({
   settings,
   onUpdateGameMode,
   onUpdateSound,
   onUpdateHandicap,
   onApplyPreset,
   onClose,
-}: SettingsProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("preset");
+}: SettingsProps) => {
+  const [activeTab, setActiveTab] = useState<TabType>('preset');
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-
-  // タブ定義
-  const tabs: { id: TabType; label: string }[] = [
-    { id: "preset", label: "プリセット" },
-    { id: "custom", label: "カスタム" },
-    { id: "sound", label: "音声" },
-    { id: "handicap", label: "ハンデ" },
-  ];
 
   // モーダルが開いた時にフォーカスを設定
   useEffect(() => {
@@ -55,12 +65,12 @@ export function Settings({
   // Escapeキーでモーダルを閉じる
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         onClose();
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
   // フォーカストラップ（モーダル内にフォーカスを閉じ込める）
@@ -75,7 +85,7 @@ export function Settings({
     const lastElement = focusableElements[focusableElements.length - 1];
 
     const handleTabKey = (e: KeyboardEvent) => {
-      if (e.key !== "Tab") return;
+      if (e.key !== 'Tab') return;
 
       if (e.shiftKey) {
         if (document.activeElement === firstElement) {
@@ -90,8 +100,8 @@ export function Settings({
       }
     };
 
-    dialog.addEventListener("keydown", handleTabKey);
-    return () => dialog.removeEventListener("keydown", handleTabKey);
+    dialog.addEventListener('keydown', handleTabKey);
+    return () => dialog.removeEventListener('keydown', handleTabKey);
   }, [activeTab]);
 
   /**
@@ -101,7 +111,7 @@ export function Settings({
     const { gameMode } = settings;
 
     switch (gameMode.type) {
-      case "basic":
+      case 'basic':
         return (
           <>
             <TimeInput
@@ -119,7 +129,7 @@ export function Settings({
           </>
         );
 
-      case "byoyomi_multi":
+      case 'byoyomi_multi':
         return (
           <>
             <TimeInput
@@ -145,7 +155,7 @@ export function Settings({
                 value={gameMode.byoyomiCount}
                 onChange={(e) =>
                   onUpdateGameMode({
-                    byoyomiCount: parseInt(e.target.value) || 1,
+                    byoyomiCount: Number.parseInt(e.target.value) || 1,
                   })
                 }
                 min={1}
@@ -159,7 +169,7 @@ export function Settings({
           </>
         );
 
-      case "consideration":
+      case 'consideration':
         return (
           <>
             <TimeInput
@@ -193,7 +203,7 @@ export function Settings({
                 value={gameMode.considerationCount}
                 onChange={(e) =>
                   onUpdateGameMode({
-                    considerationCount: parseInt(e.target.value) || 1,
+                    considerationCount: Number.parseInt(e.target.value) || 1,
                   })
                 }
                 min={1}
@@ -203,7 +213,7 @@ export function Settings({
           </>
         );
 
-      case "fischer":
+      case 'fischer':
         return (
           <>
             <TimeInput
@@ -222,7 +232,9 @@ export function Settings({
                 className="setting-input w-24"
                 value={gameMode.increment}
                 onChange={(e) =>
-                  onUpdateGameMode({ increment: parseInt(e.target.value) || 0 })
+                  onUpdateGameMode({
+                    increment: Number.parseInt(e.target.value) || 0,
+                  })
                 }
                 min={0}
                 max={60}
@@ -231,7 +243,7 @@ export function Settings({
           </>
         );
 
-      case "canadian":
+      case 'canadian':
         return (
           <>
             <TimeInput
@@ -251,7 +263,7 @@ export function Settings({
                 value={gameMode.movesPerPeriod}
                 onChange={(e) =>
                   onUpdateGameMode({
-                    movesPerPeriod: parseInt(e.target.value) || 1,
+                    movesPerPeriod: Number.parseInt(e.target.value) || 1,
                   })
                 }
                 min={1}
@@ -269,7 +281,7 @@ export function Settings({
           </>
         );
 
-      case "chess_intl":
+      case 'chess_intl':
         return (
           <>
             <TimeInput
@@ -289,7 +301,7 @@ export function Settings({
                 value={gameMode.movesPerPeriod}
                 onChange={(e) =>
                   onUpdateGameMode({
-                    movesPerPeriod: parseInt(e.target.value) || 40,
+                    movesPerPeriod: Number.parseInt(e.target.value) || 40,
                   })
                 }
                 min={1}
@@ -312,7 +324,9 @@ export function Settings({
                 className="setting-input w-24"
                 value={gameMode.increment}
                 onChange={(e) =>
-                  onUpdateGameMode({ increment: parseInt(e.target.value) || 0 })
+                  onUpdateGameMode({
+                    increment: Number.parseInt(e.target.value) || 0,
+                  })
                 }
                 min={0}
                 max={60}
@@ -321,7 +335,7 @@ export function Settings({
           </>
         );
 
-      case "xiangqi_intl":
+      case 'xiangqi_intl':
         return (
           <>
             <TimeInput
@@ -344,7 +358,7 @@ export function Settings({
                 value={gameMode.movesPerPeriod}
                 onChange={(e) =>
                   onUpdateGameMode({
-                    movesPerPeriod: parseInt(e.target.value) || 40,
+                    movesPerPeriod: Number.parseInt(e.target.value) || 40,
                   })
                 }
                 min={1}
@@ -398,17 +412,7 @@ export function Settings({
             onClick={onClose}
             aria-label="設定を閉じる"
           >
-            <svg
-              className="w-5 h-5 text-color-muted"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <CloseIcon className="text-color-muted" />
           </button>
         </header>
 
@@ -418,7 +422,7 @@ export function Settings({
           role="tablist"
           aria-label="設定カテゴリ"
         >
-          {tabs.map((tab) => (
+          {TABS.map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -429,20 +433,20 @@ export function Settings({
               tabIndex={activeTab === tab.id ? 0 : -1}
               className={`flex-1 py-2 text-sm font-medium transition-colors cursor-pointer ${
                 activeTab === tab.id
-                  ? "text-color-accent border-b-2 border-color-accent"
-                  : "text-color-muted hover:text-color-text"
+                  ? 'text-color-accent border-b-2 border-color-accent'
+                  : 'text-color-muted hover:text-color-text'
               }`}
               onClick={() => setActiveTab(tab.id)}
               onKeyDown={(e) => {
                 // 矢印キーでタブを切り替え
-                const currentIndex = tabs.findIndex((t) => t.id === activeTab);
-                if (e.key === "ArrowRight") {
-                  const nextIndex = (currentIndex + 1) % tabs.length;
-                  setActiveTab(tabs[nextIndex].id);
-                } else if (e.key === "ArrowLeft") {
+                const currentIndex = TABS.findIndex((t) => t.id === activeTab);
+                if (e.key === 'ArrowRight') {
+                  const nextIndex = (currentIndex + 1) % TABS.length;
+                  setActiveTab(TABS[nextIndex].id);
+                } else if (e.key === 'ArrowLeft') {
                   const prevIndex =
-                    (currentIndex - 1 + tabs.length) % tabs.length;
-                  setActiveTab(tabs[prevIndex].id);
+                    (currentIndex - 1 + TABS.length) % TABS.length;
+                  setActiveTab(TABS[prevIndex].id);
                 }
               }}
             >
@@ -458,9 +462,9 @@ export function Settings({
             id="tabpanel-preset"
             role="tabpanel"
             aria-labelledby="tab-preset"
-            hidden={activeTab !== "preset"}
+            hidden={activeTab !== 'preset'}
           >
-            {activeTab === "preset" && (
+            {activeTab === 'preset' && (
               <PresetList
                 currentSettings={settings.gameMode}
                 onSelect={(preset) => {
@@ -476,9 +480,9 @@ export function Settings({
             id="tabpanel-custom"
             role="tabpanel"
             aria-labelledby="tab-custom"
-            hidden={activeTab !== "custom"}
+            hidden={activeTab !== 'custom'}
           >
-            {activeTab === "custom" && (
+            {activeTab === 'custom' && (
               <div className="space-y-4">
                 <ModeSelector
                   value={settings.gameMode.type}
@@ -494,9 +498,9 @@ export function Settings({
             id="tabpanel-sound"
             role="tabpanel"
             aria-labelledby="tab-sound"
-            hidden={activeTab !== "sound"}
+            hidden={activeTab !== 'sound'}
           >
-            {activeTab === "sound" && (
+            {activeTab === 'sound' && (
               <SoundSettings
                 settings={settings.sound}
                 onChange={onUpdateSound}
@@ -509,9 +513,9 @@ export function Settings({
             id="tabpanel-handicap"
             role="tabpanel"
             aria-labelledby="tab-handicap"
-            hidden={activeTab !== "handicap"}
+            hidden={activeTab !== 'handicap'}
           >
-            {activeTab === "handicap" && (
+            {activeTab === 'handicap' && (
               <HandicapSettings
                 handicap={settings.handicap}
                 onChange={onUpdateHandicap}
@@ -533,4 +537,4 @@ export function Settings({
       </div>
     </div>
   );
-}
+};

@@ -1,27 +1,35 @@
-import { TimerState } from "../../types";
-
-interface ControlPanelProps {
-  /** タイマーの状態 */
-  state: TimerState;
-  /** 一時停止ボタン押下時のコールバック */
-  onPause: () => void;
-  /** 再開ボタン押下時のコールバック */
-  onResume: () => void;
-  /** リセットボタン押下時のコールバック */
-  onReset: () => void;
-  /** 設定ボタン押下時のコールバック */
-  onSettings: () => void;
-  /** 残時間入替ボタン押下時のコールバック（千日手対応） */
-  onSwapTimes: () => void;
-  /** 横画面かどうか */
-  isLandscape?: boolean;
-}
-
 /**
  * コントロールパネルコンポーネント
  * タイマーの操作ボタン（一時停止、再開、リセット、設定、入替）を表示
  */
-export function ControlPanel({
+
+import {
+  SettingsIcon,
+  PlayIcon,
+  PauseIcon,
+  SwapIcon,
+  ResetIcon,
+} from '../Icons';
+import type { TimerState } from '../../types';
+
+interface ControlPanelProps {
+  /** タイマーの状態 */
+  readonly state: TimerState;
+  /** 一時停止ボタン押下時のコールバック */
+  readonly onPause: () => void;
+  /** 再開ボタン押下時のコールバック */
+  readonly onResume: () => void;
+  /** リセットボタン押下時のコールバック */
+  readonly onReset: () => void;
+  /** 設定ボタン押下時のコールバック */
+  readonly onSettings: () => void;
+  /** 残時間入替ボタン押下時のコールバック（千日手対応） */
+  readonly onSwapTimes: () => void;
+  /** 横画面かどうか */
+  readonly isLandscape?: boolean;
+}
+
+export const ControlPanel = ({
   state,
   onPause,
   onResume,
@@ -29,22 +37,22 @@ export function ControlPanel({
   onSettings,
   onSwapTimes,
   isLandscape = false,
-}: ControlPanelProps) {
+}: ControlPanelProps) => {
   const { isStarted, isPaused, isGameOver } = state;
 
   return (
     <nav
       className={`bg-gradient-panel flex items-center gap-2 ${
         isLandscape
-          ? "flex-col px-2 py-3 border-x border-accent-10"
-          : "flex-col px-3 py-2 border-y border-accent-10"
+          ? 'flex-col px-2 py-3 border-x border-accent-10'
+          : 'flex-col px-3 py-2 border-y border-accent-10'
       }`}
       aria-label="タイマー操作"
       role="toolbar"
     >
       <div
         className={`flex gap-2 justify-center ${
-          isLandscape ? "flex-col" : "flex-wrap"
+          isLandscape ? 'flex-col' : 'flex-wrap'
         }`}
         role="group"
       >
@@ -56,7 +64,7 @@ export function ControlPanel({
             onClick={onSettings}
             aria-label="設定を開く"
           >
-            <SettingsIcon aria-hidden="true" />
+            <SettingsIcon />
             <span>設定</span>
           </button>
         ) : (
@@ -71,7 +79,7 @@ export function ControlPanel({
                 aria-label="タイマーを再開"
                 aria-disabled={isGameOver}
               >
-                <PlayIcon aria-hidden="true" />
+                <PlayIcon />
                 <span>再開</span>
               </button>
             ) : (
@@ -83,7 +91,7 @@ export function ControlPanel({
                 aria-label="タイマーを一時停止"
                 aria-disabled={isGameOver}
               >
-                <PauseIcon aria-hidden="true" />
+                <PauseIcon />
                 <span>一時停止</span>
               </button>
             )}
@@ -97,7 +105,7 @@ export function ControlPanel({
               aria-label="残り時間を入れ替える（千日手対応）"
               aria-disabled={isGameOver}
             >
-              <SwapIcon aria-hidden="true" />
+              <SwapIcon />
               <span>入替</span>
             </button>
 
@@ -108,7 +116,7 @@ export function ControlPanel({
               onClick={onReset}
               aria-label="タイマーをリセット"
             >
-              <ResetIcon aria-hidden="true" />
+              <ResetIcon />
               <span>リセット</span>
             </button>
 
@@ -119,7 +127,7 @@ export function ControlPanel({
               onClick={onSettings}
               aria-label="設定を開く"
             >
-              <SettingsIcon aria-hidden="true" />
+              <SettingsIcon />
               <span>設定</span>
             </button>
           </>
@@ -138,105 +146,4 @@ export function ControlPanel({
       )}
     </nav>
   );
-}
-
-// アイコンコンポーネント（SVG）
-// すべてaria-hidden="true"を親から受け取り、装飾的要素として扱う
-
-function SettingsIcon({
-  "aria-hidden": ariaHidden,
-}: {
-  "aria-hidden"?: boolean | "true" | "false";
-}) {
-  return (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden={ariaHidden}
-      focusable="false"
-    >
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 1v4m0 14v4M1 12h4m14 0h4M4.22 4.22l2.83 2.83m9.9 9.9l2.83 2.83M4.22 19.78l2.83-2.83m9.9-9.9l2.83-2.83" />
-    </svg>
-  );
-}
-
-function PlayIcon({
-  "aria-hidden": ariaHidden,
-}: {
-  "aria-hidden"?: boolean | "true" | "false";
-}) {
-  return (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden={ariaHidden}
-      focusable="false"
-    >
-      <path d="M8 5v14l11-7z" />
-    </svg>
-  );
-}
-
-function PauseIcon({
-  "aria-hidden": ariaHidden,
-}: {
-  "aria-hidden"?: boolean | "true" | "false";
-}) {
-  return (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden={ariaHidden}
-      focusable="false"
-    >
-      <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-    </svg>
-  );
-}
-
-function SwapIcon({
-  "aria-hidden": ariaHidden,
-}: {
-  "aria-hidden"?: boolean | "true" | "false";
-}) {
-  return (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden={ariaHidden}
-      focusable="false"
-    >
-      <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
-    </svg>
-  );
-}
-
-function ResetIcon({
-  "aria-hidden": ariaHidden,
-}: {
-  "aria-hidden"?: boolean | "true" | "false";
-}) {
-  return (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden={ariaHidden}
-      focusable="false"
-    >
-      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-      <path d="M3 3v5h5" />
-    </svg>
-  );
-}
+};
