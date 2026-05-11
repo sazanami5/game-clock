@@ -127,6 +127,11 @@ const handleMainTimeExpired = (
           remainingTime: byoyomiTime,
         };
       }
+
+    default: {
+      const _exhaustive: never = settings.type;
+      return _exhaustive;
+    }
   }
 };
 
@@ -197,12 +202,20 @@ const handleByoyomiExpired = (
         isTimeUp: true,
       };
 
-    default:
+    case 'fischer':
+    case 'canadian':
+    case 'chess_intl':
+    case 'xiangqi_intl':
       return {
         ...player,
         remainingTime: 0,
         isTimeUp: true,
       };
+
+    default: {
+      const _exhaustive: never = settings.type;
+      return _exhaustive;
+    }
   }
 };
 

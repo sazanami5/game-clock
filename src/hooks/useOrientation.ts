@@ -9,9 +9,10 @@ interface UseOrientationReturn {
 }
 
 export const useOrientation = (): UseOrientationReturn => {
-  const [isLandscape, setIsLandscape] = useState(
-    () => window.innerWidth > window.innerHeight
-  );
+  const [isLandscape, setIsLandscape] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth > window.innerHeight;
+  });
 
   useEffect(() => {
     const handleResize = () => {

@@ -2,7 +2,7 @@
  * 音声管理カスタムフック
  */
 
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef } from 'react';
 import {
   speakByoyomi,
   speakStart,
@@ -24,11 +24,7 @@ interface UseSoundReturn {
 
 export const useSound = (settings: SoundSettings): UseSoundReturn => {
   const settingsRef = useRef(settings);
-  
-  // useEffectでrefを更新
-  useEffect(() => {
-    settingsRef.current = settings;
-  }, [settings]);
+  settingsRef.current = settings;
 
   const playByoyomi = useCallback((seconds: number) => {
     const { voiceType, volume } = settingsRef.current;
