@@ -118,6 +118,7 @@ button {
   padding: 1rem;
   background: linear-gradient(135deg, var(--color-bg-dark) 0%, #16213e 100%);
   overflow: hidden;  /* コンテンツがはみ出すのを防ぐ */
+  touch-action: manipulation;  /* ダブルタップズームを無効化 */
 }
 
 .timer-btn:hover:not(:disabled) {
@@ -126,6 +127,10 @@ button {
 
 .timer-btn:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+.timer-btn-reversed:active:not(:disabled) {
+  transform: rotate(180deg) scale(0.98);
 }
 
 .timer-btn-active {
